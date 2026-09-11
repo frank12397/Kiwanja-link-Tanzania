@@ -13,6 +13,44 @@ jobs:
 
       - name: Extract project
         run: |
+          mkdir -p project
+          unzip -o KiwanjaLink-Tanzania-PRODUCTION-MVP.zip -d project
+
+      - name: Find project folder
+        run: |
+          find project -maxdepth 2 -type f -name "package.json" -print
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        working-directory: project
+        run: npm install
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Build APK
+        working-directory: project
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: eas build --platform android --profile preview --non-interactive: Build KiwanjaLink APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract project
+        run: |
           unzip -o KiwanjaLink-Tanzania-PRODUCTION-MVP.zip -d project
           cd project
           if [ -d "KiwanjaLink-Tanzania-PRODUCTION-MVP" ]; then
