@@ -1,0 +1,42 @@
+name: Build KiwanjaLink APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract project
+        run: |
+          unzip -o KiwanjaLink-Tanzania-PRODUCTION-MVP.zip -d project
+          cd project
+          if [ -d "KiwanjaLink-Tanzania-PRODUCTION-MVP" ]; then
+            shopt -s dotglob
+            mv KiwanjaLink-Tanzania-PRODUCTION-MVP/* .
+            rmdir KiwanjaLink-Tanzania-PRODUCTION-MVP
+          fi
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: project/package-lock.json
+
+      - name: Install dependencies
+        working-directory: project
+        run: npm install
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Build APK
+        working-directory: project
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: eas build --platform android --profile preview --non-interactive
