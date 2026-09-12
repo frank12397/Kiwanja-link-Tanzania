@@ -70,11 +70,15 @@ jobs:
         working-directory: project
         run: npm install
 
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
+      
+- name: Configure EAS
+  working-directory: project
+  env:
+    EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+  run: eas init --account frank12359 --non-interactive
 
-      - name: Build APK
-        working-directory: project
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: eas build --platform android --profile preview --non-interactive
+- name: Build APK
+  working-directory: project
+  env:
+    EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+  run: eas build --platform android --profile preview --non-interactive
